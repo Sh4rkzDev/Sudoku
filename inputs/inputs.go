@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
 	"sudoku/sudoku"
 )
 
@@ -34,13 +35,19 @@ func createReq(n int) string {
 
 func ReadInput() sudoku.Sudoku {
 	input := bufio.NewScanner(os.Stdin)
-	for i := 0; i < 9; i++ {
-		fmt.Println(createReq(i + 1))
-		input.Scan()
+	s := sudoku.CreateSudoku()
+	for row := 1; row < 10; row++ {
+		fmt.Println(createReq(row))
+		input.Scan() //????
 		numsS := input.Text()
 		nums := strings.Split(numsS, ",")
-		for _, n := range nums {
-
+		for column, n := range nums {
+			nInt, err := strconv.Atoi(n)
+			if err != nil {
+				panic("Enter a valid number")
+			}
+			s.AddNumber(nInt, row, column)
 		}
 	}
+	return s
 }

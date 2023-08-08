@@ -12,4 +12,7 @@ type Sudoku interface {
 	//Returns true if it is correct to place the given number at that cell.
 	//It is correct to place a number when the same number is not at the given row and the give column.
 	CorrectPlace(number, row, column int) bool
+
+	//Returns true if the solution is found
+	Solved() bool
 }

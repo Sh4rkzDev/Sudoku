@@ -45,3 +45,14 @@ func (s *sudoku) CorrectPlace(number, row, col int) bool {
 	_, aux2 := s.cols[col][number]
 	return !aux1 && !aux2
 }
+
+func (s *sudoku) Solved() bool {
+	for _, row := range s.grid {
+		for _, col := range row {
+			if col == 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
