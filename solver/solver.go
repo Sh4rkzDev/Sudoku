@@ -1,7 +1,6 @@
 package solver
 
 import (
-	"fmt"
 	"sudoku/sudoku"
 )
 
@@ -15,19 +14,16 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 	auxInt := 0
 	for {
 		change := false
-		fmt.Println("Starting another")
 		if s.Solved() {
 			ch <- s.GetGrid()
 			return
 		}
 		r, c := s.GetEmptyCell()
-		fmt.Println("Row: ", r, "  Col: ", c)
 		if fromOne {
 			for i := 1; i < 10; i++ {
 				if !s.Occupied(r, c) && s.CorrectPlace(i, r, c) {
 					s.AddNumber(i, r, c)
 					change = true
-					fmt.Println("Added Number")
 					break
 				}
 			}
@@ -37,7 +33,6 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 					s.AddNumber(i, r, c)
 					change = true
 					fromOne = true
-					fmt.Println("Added Number")
 					break
 				}
 			}
@@ -45,7 +40,6 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 		if !change {
 			auxInt = s.Remove() + 1
 			fromOne = false
-			fmt.Println("fromOne false")
 		}
 	}
 }
