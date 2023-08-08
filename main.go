@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"sudoku/inputs"
 	"sudoku/solver"
+	"time"
 )
 
 func main() {
 	sudoku := inputs.ReadInput()
 	ch := make(chan [9][9]int)
+	start := time.Now()
 	go solver.Solver(sudoku, ch)
 	sol := <-ch
+	end := time.Now()
 	close(ch)
 	fmt.Printf("  -----------------------------------\n")
 	for r, row := range sol {
@@ -28,4 +31,6 @@ func main() {
 			fmt.Printf("  -----------------------------------\n")
 		}
 	}
+	fmt.Println()
+	fmt.Println("It took ", end.Sub(start))
 }
