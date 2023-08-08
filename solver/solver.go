@@ -1,8 +1,6 @@
 package solver
 
-import (
-	"sudoku/sudoku"
-)
+import "sudoku/sudoku"
 
 type gridNumber struct {
 	grid [9][9]int

@@ -57,8 +57,5 @@ func ReadInput() sudoku.Sudoku {
 		}
 		fmt.Println()
 	}
-	fmt.Println()
-	fmt.Println("Finish input")
-	fmt.Println()
 	return s
 }
