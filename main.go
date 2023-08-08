@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"time"
+
 	"sudoku/inputs"
 	"sudoku/solver"
-	"time"
 )
 
 func main() {
