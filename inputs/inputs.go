@@ -36,18 +36,29 @@ func createReq(n int) string {
 func ReadInput() sudoku.Sudoku {
 	input := bufio.NewScanner(os.Stdin)
 	s := sudoku.CreateSudoku()
+	fmt.Println("Please, enter the numbers with the following format (row line):")
+	fmt.Println("1,2,3,,,7,,5,")
+	fmt.Println("No number represents blank cell")
+	fmt.Println()
 	for row := 1; row < 10; row++ {
 		fmt.Println(createReq(row))
-		input.Scan() //????
+		input.Scan()
 		numsS := input.Text()
 		nums := strings.Split(numsS, ",")
 		for column, n := range nums {
+			if n == "" {
+				continue
+			}
 			nInt, err := strconv.Atoi(n)
 			if err != nil {
 				panic("Enter a valid number")
 			}
-			s.AddNumber(nInt, row, column)
+			s.AddNumber(nInt, row, column+1)
 		}
+		fmt.Println()
 	}
+	fmt.Println()
+	fmt.Println("Finish input")
+	fmt.Println()
 	return s
 }

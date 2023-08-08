@@ -6,6 +6,10 @@ type Sudoku interface {
 	//In case of not being a correct place to put the number or the cell is already Occupied, it will panic.
 	AddNumber(number, row, column int) error
 
+	//It will remove the last number placed and return it.
+	//In case of no added number, it will panic.
+	Remove() int
+
 	//Returns true in case of being occupied.
 	Occupied(row, column int) bool
 

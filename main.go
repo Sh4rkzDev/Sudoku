@@ -12,8 +12,12 @@ func main() {
 	go solver.Solver(sudoku, ch)
 	sol := <-ch
 	close(ch)
+	fmt.Printf("  -----------------------------------\n")
 	for r, row := range sol {
 		for c, col := range row {
+			if c == 0 {
+				fmt.Printf(" | ")
+			}
 			fmt.Printf(" %d ", col)
 			if (c+1)%3 == 0 {
 				fmt.Printf(" | ")
@@ -21,7 +25,7 @@ func main() {
 		}
 		fmt.Printf("\n")
 		if (r+1)%3 == 0 {
-			fmt.Printf("-------------\n")
+			fmt.Printf("  -----------------------------------\n")
 		}
 	}
 }
