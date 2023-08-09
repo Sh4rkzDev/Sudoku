@@ -10,8 +10,9 @@ type Sudoku interface {
 	//In case of no added number, it will panic.
 	Remove() int
 
-	//It will add the guven number to the specific cell permanently.
-	//This operation cannot be undo, even if remove is used (it will not be stacked on the stack of the placed numbers).
+	//It will add the given number to the specific cell temporary-permanently.
+	//This operation will automatically be undo when the operation of putting the original number there is undo (in case of already being occupied).
+	//In case of not being occupied originally, it will be undo when undoing for first time an operation that involves the same number.
 	//In case of being occupied, it will overwrite the number that is set.
 	//In case of not being a correct place to put the number, it will panic.
 	AddNumberPerm(number, row, column int)

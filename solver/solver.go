@@ -1,6 +1,8 @@
 package solver
 
-import "sudoku/sudoku"
+import (
+	"sudoku/sudoku"
+)
 
 type gridNumber struct {
 	grid [9][9]int
@@ -16,15 +18,12 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 			ch <- s.GetGrid()
 			return
 		}
-		if checkOneLeft(s) {
-			change = true
-			fromOne = true
-		}
 		r, c := s.GetEmptyCell()
 		if fromOne {
 			for i := 1; i < 10; i++ {
 				if !s.Occupied(r, c) && s.CorrectPlace(i, r, c) {
 					s.AddNumber(i, r, c)
+					checkOneLeft(s)
 					change = true
 					break
 				}
@@ -33,6 +32,7 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 			for i := auxInt; i < 10; i++ {
 				if !s.Occupied(r, c) && s.CorrectPlace(i, r, c) {
 					s.AddNumber(i, r, c)
+					checkOneLeft(s)
 					change = true
 					fromOne = true
 					break
@@ -46,11 +46,10 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 	}
 }
 
-func checkOneLeft(s sudoku.Sudoku) bool {
+func checkOneLeft(s sudoku.Sudoku) {
 	er, n, r, c := s.OneLeft()
 	if er != nil {
-		return false
+		return
 	}
 	s.AddNumberPerm(n, r, c)
-	return true
 }

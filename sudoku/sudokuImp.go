@@ -1,22 +1,24 @@
 package sudoku
 
 import (
+	"fmt"
+
 	stack "github.com/golang-collections/collections/stack"
 )
 
 type sudoku struct {
-	rows       map[int]map[int]bool
-	cols       map[int]map[int]bool
-	permChange map[int]map[int]bool
-	quant      map[int]int
-	grid       [9][9]int
-	last       *stack.Stack
+	rows      map[int]map[int]bool
+	cols      map[int]map[int]bool
+	permStack stack.Stack
+	quant     map[int]int
+	grid      [9][9]int
+	last      *stack.Stack
 }
 
 func CreateSudoku() Sudoku {
 	rows := map[int]map[int]bool{}
 	cols := map[int]map[int]bool{}
-	perm := map[int]map[int]bool{}
+	perm := stack.New()
 	quant := map[int]int{}
 	for i := 1; i < 10; i++ {
 		rows[i] = map[int]bool{}
@@ -24,7 +26,7 @@ func CreateSudoku() Sudoku {
 	}
 	grid := [9][9]int{}
 	stk := stack.New()
-	return &sudoku{rows, cols, quant, perm, grid, stk}
+	return &sudoku{rows, cols, *perm, quant, grid, stk}
 }
 
 func (s *sudoku) AddNumber(number, row, col int) {
@@ -36,29 +38,42 @@ func (s *sudoku) AddNumber(number, row, col int) {
 	}
 	s.rows[row][number] = true
 	s.cols[col][number] = true
+	if s.permStack.Len() != 0 {
+		s.permStack.Peek().([]int)[0]++
+	}
 	s.quant[number]++
 	s.grid[row-1][col-1] = number
 	aux := [3]int{number, row, col}
 	s.last.Push(aux)
+	fmt.Println("ADDED: ", number)
 }
 
 func (s *sudoku) Remove() int {
 	if s.last.Len() == 0 {
 		panic("No number added")
 	}
-	var l [3]int
-	number, row, col := 0, 0, 0
-	for {
-		l = s.last.Pop().([3]int)
-		number, row, col = l[0], l[1], l[2]
-		_, aux := s.permChange[row][col]
-		if !aux {
-			break
+	l := s.last.Pop().([3]int)
+	number, row, col := l[0], l[1], l[2]
+	if s.permStack.Len() != 0 {
+		s.permStack.Peek().([]int)[0]--
+		if s.permStack.Peek().([]int)[0] == 0 {
+			ex := s.permStack.Pop().([]int)
+			aux := s.grid[ex[2]][ex[3]]
+			delete(s.rows[ex[2]], aux)
+			delete(s.cols[ex[3]], aux)
+			s.rows[ex[2]][ex[1]] = true
+			s.cols[ex[3]][ex[1]] = true
+			s.grid[ex[2]-1][ex[3]-1] = ex[1]
+			s.quant[aux]--
+			s.quant[ex[1]]++
+			fmt.Println("RMPERM: ", number)
 		}
 	}
 	delete(s.cols[col], number)
 	delete(s.rows[row], number)
 	s.grid[row-1][col-1] = 0
+	s.quant[number]--
+	fmt.Println("RM: ", number)
 	return number
 }
 
@@ -66,11 +81,19 @@ func (s *sudoku) AddNumberPerm(number, row, col int) {
 	if !s.CorrectPlace(number, row, col) {
 		panic("The number is already on the given row or column")
 	}
+	if s.Occupied(row, col) {
+		aux := s.grid[row-1][col-1]
+		auxSl := []int{1, aux, row, col}
+		s.permStack.Push(auxSl)
+		delete(s.rows[row], aux)
+		delete(s.cols[col], aux)
+		s.quant[aux]--
+	}
 	s.rows[row][number] = true
 	s.cols[col][number] = true
-	s.permChange[row][col] = true
 	s.quant[number]++
 	s.grid[row-1][col-1] = number
+	fmt.Println("ADDED PERM: ", number)
 }
 
 func (s *sudoku) OneLeft() (error, int, int, int) {
@@ -111,10 +134,12 @@ func (s *sudoku) Occupied(row, col int) bool {
 func (s *sudoku) CorrectPlace(number, row, col int) bool {
 	_, aux1 := s.rows[row][number]
 	if aux1 {
+		fmt.Println("Same row")
 		return false
 	}
 	_, aux2 := s.cols[col][number]
 	if aux2 {
+		fmt.Println("Same col")
 		return false
 	}
 	rowFamily, colFamily := (row-1)/3, (col-1)/3
@@ -125,6 +150,7 @@ func checkFam(grid [9][9]int, n, r, c int) bool {
 	for i := r * 3; i < (r*3)+3; i++ {
 		for j := c * 3; j < (c*3)+3; j++ {
 			if grid[i][j] == n {
+				fmt.Println("Same fam")
 				return false
 			}
 		}
