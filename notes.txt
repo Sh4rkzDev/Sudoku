@@ -1,0 +1,5 @@
+There can be many problems with the idea I've been working.
+
+There can be one left of a number, and it will be added permanently to the grid. But it can be the last position of the number
+with that configuration of the grid, and it can be incorrect. And as it is incorrect, finally the solution will never appear because it is needed to
+gete rid of that number at that cell. Maybe the path is allign to a correct thought, but it may be a little more tricky.

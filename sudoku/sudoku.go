@@ -4,11 +4,21 @@ type Sudoku interface {
 
 	//It will add the given number to the specific cell.
 	//In case of not being a correct place to put the number or the cell is already Occupied, it will panic.
-	AddNumber(number, row, column int) error
+	AddNumber(number, row, column int)
 
 	//It will remove the last number placed and return it.
 	//In case of no added number, it will panic.
 	Remove() int
+
+	//It will add the guven number to the specific cell permanently.
+	//This operation cannot be undo, even if remove is used (it will not be stacked on the stack of the placed numbers).
+	//In case of being occupied, it will overwrite the number that is set.
+	//In case of not being a correct place to put the number, it will panic.
+	AddNumberPerm(number, row, column int)
+
+	//It will return the number that only one position is left to put it, and the row and column where it should be.
+	//In case of no number is one position left to be completed, it will return an error too.
+	OneLeft() (error, int, int, int)
 
 	//Returns true in case of being occupied.
 	Occupied(row, column int) bool

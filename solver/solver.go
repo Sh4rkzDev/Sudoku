@@ -16,6 +16,10 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 			ch <- s.GetGrid()
 			return
 		}
+		if checkOneLeft(s) {
+			change = true
+			fromOne = true
+		}
 		r, c := s.GetEmptyCell()
 		if fromOne {
 			for i := 1; i < 10; i++ {
@@ -40,4 +44,13 @@ func Solver(s sudoku.Sudoku, ch chan [9][9]int) {
 			fromOne = false
 		}
 	}
+}
+
+func checkOneLeft(s sudoku.Sudoku) bool {
+	er, n, r, c := s.OneLeft()
+	if er != nil {
+		return false
+	}
+	s.AddNumberPerm(n, r, c)
+	return true
 }

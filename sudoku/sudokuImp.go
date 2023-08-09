@@ -5,25 +5,29 @@ import (
 )
 
 type sudoku struct {
-	rows map[int]map[int]bool
-	cols map[int]map[int]bool
-	grid [9][9]int
-	last *stack.Stack
+	rows       map[int]map[int]bool
+	cols       map[int]map[int]bool
+	permChange map[int]map[int]bool
+	quant      map[int]int
+	grid       [9][9]int
+	last       *stack.Stack
 }
 
 func CreateSudoku() Sudoku {
 	rows := map[int]map[int]bool{}
 	cols := map[int]map[int]bool{}
+	perm := map[int]map[int]bool{}
+	quant := map[int]int{}
 	for i := 1; i < 10; i++ {
 		rows[i] = map[int]bool{}
 		cols[i] = map[int]bool{}
 	}
 	grid := [9][9]int{}
 	stk := stack.New()
-	return &sudoku{rows, cols, grid, stk}
+	return &sudoku{rows, cols, quant, perm, grid, stk}
 }
 
-func (s *sudoku) AddNumber(number, row, col int) error {
+func (s *sudoku) AddNumber(number, row, col int) {
 	if s.Occupied(row, col) {
 		panic("The given cell is already occupied")
 	}
@@ -32,22 +36,72 @@ func (s *sudoku) AddNumber(number, row, col int) error {
 	}
 	s.rows[row][number] = true
 	s.cols[col][number] = true
+	s.quant[number]++
 	s.grid[row-1][col-1] = number
 	aux := [3]int{number, row, col}
 	s.last.Push(aux)
-	return nil
 }
 
 func (s *sudoku) Remove() int {
 	if s.last.Len() == 0 {
 		panic("No number added")
 	}
-	l := s.last.Pop().([3]int)
-	number, row, col := l[0], l[1], l[2]
+	var l [3]int
+	number, row, col := 0, 0, 0
+	for {
+		l = s.last.Pop().([3]int)
+		number, row, col = l[0], l[1], l[2]
+		_, aux := s.permChange[row][col]
+		if !aux {
+			break
+		}
+	}
 	delete(s.cols[col], number)
 	delete(s.rows[row], number)
 	s.grid[row-1][col-1] = 0
 	return number
+}
+
+func (s *sudoku) AddNumberPerm(number, row, col int) {
+	if !s.CorrectPlace(number, row, col) {
+		panic("The number is already on the given row or column")
+	}
+	s.rows[row][number] = true
+	s.cols[col][number] = true
+	s.permChange[row][col] = true
+	s.quant[number]++
+	s.grid[row-1][col-1] = number
+}
+
+func (s *sudoku) OneLeft() (error, int, int, int) {
+	for k, v := range s.quant {
+		if v == 8 {
+			row := 0
+			col := 0
+			for rows, n := range s.rows {
+				_, exist := n[k]
+				if !exist {
+					row = rows
+					break
+				}
+			}
+			for cols, n := range s.cols {
+				_, exist := n[k]
+				if !exist {
+					col = cols
+					break
+				}
+			}
+			return nil, k, row, col
+		}
+	}
+	return ErrorOneLeft{}, -1, -1, -1
+}
+
+type ErrorOneLeft struct{}
+
+func (e ErrorOneLeft) Error() string {
+	return "There is no number that is one position away of being complete"
 }
 
 func (s *sudoku) Occupied(row, col int) bool {
